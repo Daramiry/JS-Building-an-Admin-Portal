@@ -1,45 +1,89 @@
-async function main() {    
 
-    let response = await fetch('http://localhost:3001/listBooks');
-    let books = await response.json();
-    books.forEach(renderBook);
-}
-
-// Your Code Here
-function renderBook(book) {
-
-    let item = document.createElement('li');
-    item.textContent = book.title;
-
-    let quantity = document.createElement('input');
-    quantity.value = book.quantity;
-    quantity.setAttribute('id', 'qty' + book.id)
-
-    let button = document.createElement('button');
-    button.textContent = 'Save'
-    button.setAttribute('id', book.id)
-    button.addEventListener('click', updateBook);
-
-    item.append(quantity, button);
-    list.append(item);
-}
-
-async function updateBook(e) {
-
-    let response = await fetch('http://localhost:3001/updateBook', {
-        method: "PATCH",
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-                "id": parseInt(e.target.id),
-                "quantity": parseInt(document.getElementById('qty' + e.target.id).value)
-        }),
-    });
-}
-
-let root = document.querySelector('#root');
-let list = document.createElement('ul');
-root.append(list);
-
-main(); 
+const updateQuantity = async (el, id) => {
+    let sibling = el.previousSibling;
+  
+    console.log(sibling);
+    let requestBody = {
+      id, quantity: sibling.value
+    }
+  
+    let res = await fetch('http://localhost:3001/updateBook', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        id, quantity: sibling.value
+      })
+    })
+  
+    console.log(res);
+  }
+  
+  const main = async () => {
+    let root = document.querySelector('#root');
+  
+    let res = await fetch('http://localhost:3001/listBooks');
+    let books = await res.json();
+    console.log(books);
+  
+    // for (let i = 0; i < books.length; i++) {
+    //   let id = books[i].id;
+    //   let quantity = books[i].quantity;
+    //   let title = books[i].title;\
+  
+    //   let wrapper = document.createElement('div');
+    //   wrapper.setAttribute('class', 'row');
+  
+    //   let bookSpan = document.createElement('span');
+    //   bookSpan.innerHTML = title;
+    //   bookSpan.setAttribute('class', 'col')
+  
+    //   let input = document.createElement('input');
+    //   input.setAttribute('type', 'number');
+    //   input.setAttribute('class', 'form-control col');
+    //   input.id = 'input' + id;
+    //   input.value = quantity;
+  
+    //   let submit = document.createElement('input');
+    //   submit.setAttribute('type', 'submit');
+    //   submit.setAttribute('class', 'col btn btn-primary')
+    //   submit.value = 'Submit';
+  
+    //   submit.setAttribute('onClick', `updateQuantity(this, ${id})`);
+    //   wrapper.append(bookSpan, input, submit);
+    //   root.append(wrapper);
+    // }
+  
+    books.forEach((book) => {
+  
+      let id = book.id;
+      let title = book.title;
+      let quantity = book.quantity;
+  
+      let wrapper = document.createElement('div');
+      wrapper.setAttribute('class', 'row');
+  
+      let bookSpan = document.createElement('span');
+      bookSpan.innerHTML = title;
+      bookSpan.setAttribute('class', 'col')
+  
+      let input = document.createElement('input');
+      input.setAttribute('type', 'number');
+      input.setAttribute('class', 'form-control col');
+      input.id = 'input' + id;
+      input.value = quantity;
+  
+      let submit = document.createElement('input');
+      submit.setAttribute('type', 'submit');
+      submit.setAttribute('class', 'col btn btn-primary')
+      submit.value = 'Submit';
+  
+      submit.setAttribute('onClick', `updateQuantity(this, ${id})`);
+      wrapper.append(bookSpan, input, submit);
+      root.append(wrapper);
+    })
+  
+  }
+  
+  main();
